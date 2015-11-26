@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>imageData</title>
+	<style>
+	* {
+		margin: 0;
+		padding: 0;
+	}
+	body {
+		background: #000;
+		text-align: center;
+	}
+	canvas {
+		background: #fff;
+	}
+	</style>
+	<script>
+	'use strict';
+	window.onload = function(){
+		var oC = document.getElementById('c1');
+		var oBtn = document.getElementById('btn');
+		var gd = oC.getContext('2d');
+		var oImg = new Image();
+		oImg.src = '1.jpg';
+		oImg.onload = function(){
+			gd.drawImage(oImg,0,0);
+			var imageData = gd.getImageData(0,0,293,220);
+			for(var x=0;x<293;x++){
+				for(var y=0;y<220;y++){
+					var n = (y*293+x)*4;
+					var r = imageData.data[n];
+					var g = imageData.data[n+1];
+					var b = imageData.data[n+2];
+					imageData.data[n] = 255-r;
+					imageData.data[n+1] = 255-g;
+					imageData.data[n+2] = 255-b;
+				}
+			}
+			gd.putImageData(imageData,300,0);
+		};
+		oBtn.onclick = function(){
+			var str = oC.toDataURL();
+			window.open(str,'_blank');
+		};
+	};
+	</script>
+</head>
+<body>
+	<input type="button" value="output" id="btn" /><br />
+	<canvas id="c1" width="1000" height="800"></canvas>
+</body>
+</html>

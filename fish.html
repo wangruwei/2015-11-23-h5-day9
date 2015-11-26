@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>fish</title>
+	<style>
+	* {
+		margin: 0;
+		padding: 0;
+	}
+	body {
+		background: #000;
+		text-align: center;
+	}
+	canvas {
+		background: url(img/game_bg_2_hd.jpg);
+	}
+	</style>
+	<script>
+	'use strict';
+	function d2a(n){
+		return n*Math.PI/180;
+	}
+	function Sprite(img){
+		if(!img)return;
+		this.img = img;
+		this.x = 0;
+		this.y = 0;
+		this.sx = 0;
+		this.sy = 0;
+		this.w = 0;
+		this.h = 0;
+		this.speed = 0;
+		this.rotate = 0;
+	}
+	Sprite.prototype.move = function(){
+		this.x += this.speed;
+	};
+	Sprite.prototype.draw = function(gd){
+		gd.save();
+		gd.beginPath();
+		gd.translate(this.x,this.y);
+		gd.rotate(d2a(this.rotate));
+		gd.drawImage(
+			this.img,
+			this.sx,this.sy,this.w,this.h,
+			-this.w/2,-this.h/2,this.w,this.h
+			);
+		gd.restore();
+	};
+
+
+
+
+	function Fish(imgs,type){
+		var img = imgs['fish'+type];
+		Sprite.call(this,img);
+		var size=[
+			null, {w: 55, h: 37}, {w: 78, h: 64}, {w: 72, h: 56}, {w: 77, h: 59}, {w: 107, h: 122}
+		];
+		this.type = type;
+		this.w = size[type].w;
+		this.h = size[type].h;
+		this.speed = 3;
+		this.count = 0;
+	}
+	Fish.prototype = new Sprite();
+	Fish.prototype.constructor = Fish;
+	var oldMove = Fish.prototype.move;
+	Fish.prototype.move = function(){
+		oldMove.call(this);
+		this.count++;
+		if(this.count%4==0){
+			this.sy += this.h;
+			if(this.sy==this.h*4)this.sy = 0;
+		}
+	};
+	function loadImage(json,fn){
+		var len = 0;
+		var count = 0;
+		var result = {};
+		for(var name in json){
+			len++;
+			var oImg = new Image();
+			result[name] = oImg;
+			oImg.src = json[name];
+			oImg.onload = function(){
+				count++;
+				if(count==len){
+					fn&&fn(result);
+				}
+			};
+		}
+	}
+	window.onload = function(){
+		var oC = document.getElementById('c1');
+		var gd = oC.getContext('2d');
+		var imgs = {
+			fish1: 'img/fish1.png',
+			fish2: 'img/fish2.png',
+			fish3: 'img/fish3.png',
+			fish4: 'img/fish4.png',
+			fish5: 'img/fish5.png',
+		};
+		loadImage(imgs,function(imgs){
+			var f1 = new Fish(imgs,1);
+			f1.x = 200;
+			f1.y = 200;
+			var f2 = new Fish(imgs,2);
+			f2.x = 100;
+			f2.y = 300;
+			var f3 = new Fish(imgs,3);
+			f3.x = 400;
+			f3.y = 300;
+			var f4 = new Fish(imgs,4);
+			f4.x = 400;
+			f4.y = 400;
+			var f5 = new Fish(imgs,5);
+			f5.x = 200;
+			f5.y = 400;
+			setInterval(function(){
+				gd.clearRect(0,0,oC.width,oC.height);
+				f1.move();
+				f1.draw(gd);
+				f2.move();
+				f2.draw(gd);
+				f3.move();
+				f3.draw(gd);
+				f5.move();
+				f5.draw(gd);
+				f4.move();
+				f4.draw(gd);
+			},30);
+		});
+	};
+	</script>
+</head>
+<body>
+	<canvas id="c1" width="800" height="600"></canvas>
+</body>
+</html>
